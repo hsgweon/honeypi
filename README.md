@@ -17,7 +17,7 @@ conda create -n honeypi_env -y python=3.6 progressbar2 requests rdptools itsx vs
 source activate honeypi_env
 git clone https://github.com/hsgweon/honeypi.git
 pip install ./honeypi
-source deactivate
+conda deactivate
 ```
 
 ### R DADA2 package
@@ -65,7 +65,7 @@ honeypi -i rawdata_directory -o honeypi_output --amplicontype ITS2 -l readpairsl
 Done... simple... isn't it? Ah, one more thing - don't forget to get out from the sandbox by:
 
 ```
-source deactivate
+conda deactivate
 ```
 
 

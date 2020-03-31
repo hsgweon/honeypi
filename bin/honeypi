@@ -216,7 +216,7 @@ if __name__ == '__main__':
 	### Consolidate sequences ###
 	#############################
 
-	logger("Adding sequences where ITSx didn't find any conserved regions", logging_file, display = True)
+	logger("Adding sequences without conserved regions", logging_file, display = True)
 	consolidateSequences(
 		output_dir = options.outputdir,
 		logging_file = logging_file,

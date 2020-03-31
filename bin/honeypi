@@ -195,6 +195,7 @@ if __name__ == '__main__':
 		summary_file = summary_file,
 		verbose = options.verbose)
 	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+	copyfile(options.outputdir + "/ITSx/ASVs.fasta", options.outputdir + "/ASVs.fasta")
 
 
 	########
@@ -212,9 +213,9 @@ if __name__ == '__main__':
 	logger(BLUE + "... done" + ENDC, logging_file, display = True)
 
 
-	#############################
-	### Consolidate sequences ###
-	#############################
+	################################################
+	### Add non-ITSx'ed sequences for assignment ###
+	################################################
 
 	logger("Adding sequences without conserved regions", logging_file, display = True)
 	consolidateSequences(
@@ -223,7 +224,6 @@ if __name__ == '__main__':
 		summary_file = summary_file,
 		verbose = options.verbose)
 	logger(BLUE + "... done" + ENDC, logging_file, display = True)
-	copyfile(options.outputdir + "/ITSx/ASVs.fasta", options.outputdir + "/ASVs.fasta")
 	
 
 	###################
@@ -232,7 +232,7 @@ if __name__ == '__main__':
 
 	logger("Running RDP Classifier", logging_file, display = True)
 	run_RDPClassifier(
-		input_fasta = options.outputdir + "/ASVs.fasta",
+		input_fasta = options.outputdir + "/ITSx/ASVs.fasta",
 		output_dir = options.outputdir + "/RDP",
 		rdpclassifier_properties = options.outputdir + "/db/" + rdp_properties,
 		logging_file = logging_file,

@@ -44,8 +44,8 @@ if __name__ == '__main__':
 		action = "store",
 		dest = "amplicontype",
 		help = "ITS2",
-		required = False,
-		choices = ["ITS2"])
+		required = True,
+		choices = ["ITS1", "ITS2"])
 	parser.add_argument(
 		"-v",
 		action = "store_true",
@@ -130,11 +130,17 @@ if __name__ == '__main__':
 	# Download data #
 	#################
 
-	logger("Downloading RDP trained database", logging_file, display = True)
+	if options.amplicontype == "ITS1":
+		logger("Downloading ITS2 database", logging_file, display = True)
+		url = "https://sourceforge.net/projects/honeypi/files/Gweon-ITS1-20200325-rdp-trained.tar.gz"
+		md5 = "8d8b588291ccd00b73ca694ccbc687c6"
+		rdp_properties = "Gweon-ITS1-20200325-rdp-trained/Gweon-ITS2.properties"
 
-	url = "https://sourceforge.net/projects/honeypi/files/Gweon-ITS2-20200325-rdp-trained.tar.gz"
-	md5 = "e87e6f0a6bd201cd234dfc3c87cbafe2"
-	rdp_properties = "Gweon-ITS2-20180723-rdp-trained/Gweon-ITS2.properties"
+	elif options.amplicontype == "ITS2":
+		logger("Downloading ITS2 database", logging_file, display = True)
+		url = "https://sourceforge.net/projects/honeypi/files/Gweon-ITS2-20200325-rdp-trained.tar.gz"
+		md5 = "e87e6f0a6bd201cd234dfc3c87cbafe2"
+		rdp_properties = "Gweon-ITS2-20200325-rdp-trained/Gweon-ITS2.properties"
 
 	downloadDB(
 		url = url,

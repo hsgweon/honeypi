@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+__author__     = "Hyun Soon Gweon"
+__copyright__  = "Copyright 2015"
+__credits__    = ["Hyun Soon Gweon"]
+__license__    = "GPL"
+__maintainer__ = "Hyun Soon Gweon"
+__email__      = "h.s.gweon@reading.ac.uk"
+
+HEADER = "\033[95m"
+BLUE = "\033[94m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+CYAN = "\033[96m"
+RED = "\033[91m"
+ENDC = "\033[0m"
+
+if __name__ == '__main__':
+
+    import argparse
+    parser = argparse.ArgumentParser("Marry up OTU and FASTA")
+    parser.add_argument(
+        "--otu",
+        action = "store",
+        dest = "otu",
+        metavar = "otu",
+        help = "[REQUIRED] OTU table",
+        required = True)
+    parser.add_argument(
+        "--fas",
+        action = "store",
+        dest = "fasta",
+        metavar = "fasta",
+        help = "[REQUIRED] FASTA file",
+        required = True)
+    parser.add_argument(
+        "--out",
+        action = "store",
+        dest = "outfile",
+        metavar = "outfile",
+        help = "[REQUIRED] Output file",
+        required = True)
+    options = parser.parse_args()
+
+    infile_otu = open(options.otu, "r")
+    infile_fas = open(options.fasta, "r")
+    outfile    = open(options.outfile, "w")
+
+    ids2keep = set()
+    for line in infile_fas:
+        if line.startswith(">"):
+            ids2keep.add(line[1:].strip())
+
+    outfile.write(infile_otu.readline())
+    for line in infile_otu:
+        if line.split()[0] in ids2keep:
+            ids2keep.remove(line.split()[0])
+            outfile.write(line)

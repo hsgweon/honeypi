@@ -1,0 +1,196 @@
+# HONEYPI
+
+**Current version: 1.0 (updated 2020-03-31).**
+
+A pipeline to process ITS2 sequences from honey and plants sequences from National Honey Monitoring Scheme - but can be used with any amplicons PCR'ed with a set of ITS2 primers.
+
+
+## Installation
+
+### HONEYPI
+
+In your home directory, copy and paste the following (line by line):
+
+```
+cd ~
+conda create -n honeypi_env -y python=3.6 progressbar2 requests rdptools itsx vsearch trim-galore bbmap seqkit -c bioconda
+source activate honeypi_env
+git clone https://github.com/hsgweon/honeypi.git
+pip install ./honeypi
+source deactivate
+```
+
+### R DADA2 package
+
+Within R, check to see if **dada2** is installed:
+
+```
+R
+library(dada2)
+```
+
+If not, then install them with:
+
+```
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install("dada2", ask = FALSE)
+```
+If it asks "Would you like to use a personal library instead?", say yes. It will ask for a location, and again just say yes.
+When all done, type "quit()" and say "n".
+
+Check again to see if the packages are all in place.
+
+
+
+
+*That's it!*
+
+
+## Running HONEYPI
+
+Since we just created a sandbox "honeypi_env" in which all tools (except R and its packages) are installed, we need to be running honeypi and processing data within the environment:
+
+```
+source activate honeypi_env
+```
+
+Then, go to a directory where with your rawdata directory is located, and create a readpairslist file. This file is needed to ensure all files and sample names are correctly labelled. It does some internal checks to make sure there are no human errors with samples names etc. 
+
+```
+cd honeypi/testdata
+honeypi_createreadpairslist -i rawdata_directory -o readpairslist.txt
+honeypi -i rawdata_directory -o honeypi_output --amplicontype ITS2 -l readpairslist.txt
+```
+
+Done... simple... isn't it? Ah, one more thing - don't forget to get out from the sandbox by:
+
+```
+source deactivate
+```
+
+
+## Testing HONEYPI
+
+```
+source activate honeypi_env
+
+cd ~/honeypi/testdata
+honeypi_createreadpairslist -i rawdata -o readpairslist.txt
+honeypi -i rawdata -o honeypi_output --amplicontype ITS2 -l readpairslist.txt
+```
+
+**Look inside the output directory ("honeypi_output"), and find:**
+
+1. ASVs_counts.txt
+2. ASVs.fasta
+3. ASVs_taxonomy.txt
+4. summary.log
+
+
+**(Misc) Check to see if your files have:**
+
+
+*ASVs_counts.txt*
+
+```
+H12BB43	H12DSPINHK9
+ASV_1	0	2853
+ASV_2	0	1836
+ASV_3	0	889
+ASV_4	0	345
+ASV_5	0	340
+ASV_6	50	200
+ASV_7	0	218
+ASV_8	0	172
+ASV_9	100	0
+ASV_10	0	69
+ASV_11	0	62
+ASV_12	0	34
+ASV_13	0	31
+ASV_14	0	14
+ASV_15	0	10
+ASV_17	0	5
+ASV_20	0	3
+ASV_21	0	2
+```
+
+*ASVs.fasta
+
+```
+>ASV_1
+ATCGTCGTCCCCCCCATCCTCTCGAGGATATGGGACGGAAGCTGGTCTCCCGTGTGTTACCGCACGCGGTTGGCCAAAATCCGAGCTAAGGGCGCCAGGAGCGTCTCGACATGCGGTGGTGAATTCAAGCCTCGTAATATCGTCGGTCGTTCCGGTCCAAAAGCTCTCGATGACCCAAAGTCCTCA
+>ASV_2
+ATGGCGTCGCCCACTCACCCCGTGCCTCTGTGGGCGGAAGGTGTGTGAGCGGATATTGGCCCCCCGTTCACGTTCGTGCTCGGTCGGTCTAAAAGGAAAGTCCCCAACGACGGACATCACGGCGAGTGGTGGTTGCCAGACCGTCCCGACGCGTCGTGCATGCTGTTCTTTGTCGTTGGCCGGCTCATCGACCCCCGAGTACCGTCAGGTACTCGGTACCTCGA
+>ASV_3
+ATTGCGTCGCTCACTCACCCCGTGCATCATTGGGCGGGCAAGTGTGTGGGCGGATATTGGCCCCCCGTTCACATTTGTGCTCGGTCGGCCTAAAAAGAAGGTCCTTGATGACGGACATCACAACAAGTGGTGGTTGCTAAACCGTCGCGCCATGTTGTGCATTATACTCCGTCGTCGGTTGCCTCATTGACCCTTAAGTGCCATTGAACTTGGTACCTCAA
+>ASV_4
+GTCGTTGCCCCCCCCCAAACCCCTCGGGAGTTGGGCGGGACGGATGATGGCCTCCCGTGTGCTCTGTCATGCGGTTGGCATAAAAACAAGTCCTCGGCGACTAACGCCACGACAATCGGTGGTTGTCAAACCTCTGTTGCCTATCGTGTGCGCGTGTCGAGCGAGGGCTCAACAAACCATGTTGCATCGATTCGTCGATGCTTTCA
+>ASV_5
+TTCGCATCGCCCCCCACCATACATACCCAACGGGTACTAATGGTGTTTGGGGCGGAGATTGGCCTCCCGCACCTCTGATGCGGTTGGCCTAAAAATGAGTCCCCTTCAGCGGACACACGACTAGTGGTGGTTGAACAGACCCTCGTCCTTATCGTGTGTCGTGAGCTGCAAGGGAAACCCTCACCAAAGACCCTATTGCATTGTTTTTTGGACAATGCTTCGA
+>ASV_6
+ATCGAAGCCTCTCGCCAATTTCCTATATTGATAGGGGTATTGTGCAGGGCGAATGTTGGCCTCCCGTGAGCTTTATTGCCTCATGGTTGGTTGAAAATCGAGACCTTGGTAGGGTGTGCCATGATAGGTGGTGGCTGTGTTACGCACGAGACCAAGTAAGTCATGTGCTGCTCTATTGAATTTAGGCCTCTTTTACCCACATGCGTTTCGAAACGCTCGTG
+>ASV_7
+TATCGAAGCCTCTTGCCAATTTCCTATTGATTGGTATTGTGCAAGATGATGTTGGCCTCCCGTGAGCACCATCGCCTCATGGTTGGTTGAAAATCGAGACCTTGGTAGAGTGTGCCATGATAAATGGTGCATGTGTTAAGCACGAGACCAAACAATCATGTGCTGCTCTATTGAATTTAGCCTCTTTTACCCACATGCGTGTCTAAACGCTCGTG
+>ASV_8
+ATCGAAGCCTCCTTGCCAATTTCCCTGATTATTGTGCAGGGTGGATGTTGGCCTCCCGTGAGCTCTTTCGTCTCATGGTTGGTTGAAAATTGAGACCTTGGTAGGGTGTGCCATGATAGATGGTGGTTGTGTGACCCACGAGACCAATCATGCGCTGCTCTATTGAATTTGGCCTCCTTTACCCATATGCGTTTCCAAACGCTCGTG
+>ASV_9
+CCCTCTCAAACGCTTGCGTTTGGTAGTGAGCGATACTCTTTTTGTGTGTATCTCTGAGGAGTTTGCTTGAAAGTGGGAGGCCATAGGCGGAGCCTAGCTTGAGCGTGTGGTGGAGGAACTGTGCCGAGAGGTGCAGGGCCGCGCTGCAACGCCTGGCCACGAAAACGAAGTCGTATTAGGTTTTACCGACTCGGCGAAGGAAGTAGTGGACGGGGGGAAAAGAGCGGAGCTCTCTTTTTTGTTTTGTTTGTTGATGATACGACGAGCAAGAGCAGCAGAGCCTGGCTTGAGAGAATTCACAAA
+>ASV_10
+ATCGCGTCGTCCCCTCCCATTCCCTCACGGGTTTGGTTATGGGACGGATAATGGCTTCCCGTTAGCTCGGTTAGCCCAAAAAGGATCCCTCATCGACGGATGTCACAACCAGTGGTGGTTGAAAGATCATTGGTGCTGTTGTGCTTCACCCTGTCGCTTGCTAGGGCATCGTCATAAACTAACGGCGTGTAATGCGCCTTCGA
+>ASV_11
+ATCGTCGTCCCCCCATCCTCTCGAGGATATGGGACGGAAGCTGGTCTCCCGTGTGTTACCGCACGCGGTTGGCCAAAATCCGAGCTAAGGACGTTTTGGAGCGTCTCGACATGCGGTGGTGAATTGTAACCTCGTCATATTGTCGGTCGTTCCGGTTCAAAAGCTCTTGATGACCCAAAGTCCTCA
+>ASV_12
+ATCGCGTCGCCCCCACCAAATTTCCAAATCTGGTTGGGGGCGGAGATTGGCCTCCCGTACCTGTTGTGGTTGGCCTAAAAAGGAGTCCCCTTCGGTGGACACACGACTAGTGGTGGTTGAACAGACCCTCGTCTTTATTGTGTGTCATGAGCTGCTAGGGAGCCCTCATCAAAGACCCTTTGTATCGTTTTCGGACGGTGCTTCGA
+>ASV_13
+ATTGCGTCGCCCCAGACTACGCCTCCCCAACGGGGATGCGTTCGACTGGGGCGGAGAATGGTCTCCCGTGTCGTCGGCGTGGTTGGCCTAAAAAGGAGTCCCCTTCGGCGGACGCACGGCTAGTGGTGGTTGTTAAGGCCTTCGTATCGAGCCGTGTGTCGTTAGCCGCAAGGGAAGCACTCTTTAAAGACCCCAATGTGTCGTCTCGTGACGACGCTTCGA
+>ASV_14
+TCATCTATTCGTCACCCCAACCTCTGCTCCCCATAAAGGAGCTCGGGTCCTGGTTACGGAAGTTGGCCTCCCGTGGTCTCGAAGCGCGGCTGGCCTAAAATTGAGCATCGGGTTGGTGATCTCCGAGGCACGCGGTGGTTGTTCATTCTTACCTCGTGATGTTGCCCCGGGGCATCTTCCACAAGAAGCTCCACGACCCTAGATACATATCG
+>ASV_15
+GTCGTTGCCCCCCCCCAACCCCCTCGGGAGTTGGATGGGACGGATGATGGCCTCCCGTGTGCTCAGTCACGCGGTTGGCATAAATACCAAGTCCTCGGCGACCAACGCCACGACAATCGGTGGTTGTCAAACCTCGGTTTCCTGTCGTGCGCGCGTGTTGATCGAGTGCTTTCTTAAACAATGCGTGTCGATCCGTCGATGCTTACA
+>ASV_17
+ATGACGTCGCCCCCCAACCTCGCTCTCACTCGTGGGAGTTGTTGCGGAGGGGCGGATACTGGCCTCCCGTGCCTCATCGTATGGTTGGCCCAAATGTGAGTCCTTGGCGACGGACGTCACGACAAGTGGTGGTTGTAAAAAGCCCTCTTCTCCTGTCGTGCGGTGGCGCGTCGCCAGCAAGAACTCTCGTGACCCTGTTGTGCCGTTGTCAACGCGCACTCCGA
+>ASV_20
+AATCGTCGTCCCCCCCATCCTCTCGAGGATATGGGACGGAAGCTGGTCTCCCGTGTGTTACCGCACGCGGTTGGCCAAAATCCGAGCTAAGGATGCCAGGAGCGTCTTGACATGCGGTGGTGAATTCAATCTCCTCGTCATATCGTCGGTCGTTCCGGTCCAAAAGCTCTCGATGACCCAAAGTCCTCA
+>ASV_21
+ATCGCGTCTCCCCCCAACCACCCTGCGTGGATTGGGAGGAGGATGATGGCCTCCCATGCCTCACCGGGCGTGGATGGCCTAAATAAGGAGCCCCCGGTTACGAAGTGCCGCGGCGATTGGTGGAATACAAGGCCTAGCCTAGGACGAAATCGAAGTCGCGCACATCGTAGCTCTTGAGGACTCGCAGGACCCTAACTTGTTTGCCCCTAGGGGCGGCAAAACCG
+```
+
+*ASVs_taxonomy.txt*
+
+```
+ASV_1	k__Viridiplantae; p__Streptophyta; c__NA; o__Brassicales; f__Brassicaceae; g__Brassica; s__Brassica_nigra	0.83
+ASV_2	k__Viridiplantae; p__Streptophyta; c__NA; o__Ericales; f__Ericaceae; g__Calluna; s__Calluna_vulgaris	1.0
+ASV_3	k__Viridiplantae; p__Streptophyta; c__NA; o__Ericales; f__Ericaceae; g__Erica; s__Erica_cinerea	1.0
+ASV_4	k__Viridiplantae; p__Streptophyta; c__NA; o__Rosales; f__Rosaceae; g__Rubus	1.0
+ASV_5	k__Viridiplantae; p__Streptophyta; c__NA; o__Asterales; f__Asteraceae; g__Scorzoneroides; s__Scorzoneroides_autumnalis	1.0
+ASV_6	k__Viridiplantae; p__Streptophyta; c__NA; o__Fabales; f__Fabaceae; g__Trifolium; s__Trifolium_repens	1.0
+ASV_7	k__Viridiplantae; p__Streptophyta; c__NA; o__Fabales; f__Fabaceae; g__Trifolium; s__Trifolium_pratense	1.0
+ASV_8	k__Viridiplantae; p__Streptophyta; c__NA; o__Fabales; f__Fabaceae; g__Vicia; s__Vicia_faba	1.0
+ASV_9	k__Fungi; p__Ascomycota; c__Saccharomycetes; o__Saccharomycetales; f__Saccharomycetaceae; g__Zygosaccharomyces; s__Zygosaccharomyces_mellis	1.0
+ASV_10	k__Viridiplantae; p__Streptophyta; c__NA; o__Lamiales; f__Plantaginaceae; g__Plantago; s__Plantago_lanceolata	1.0
+ASV_11	k__Viridiplantae; p__Streptophyta; c__NA; o__Brassicales; f__Brassicaceae; g__Sinapis; s__Sinapis_alba	1.0
+ASV_12	k__Viridiplantae; p__Streptophyta; c__NA; o__Asterales; f__Asteraceae; g__Hypochaeris; s__Hypochaeris_radicata	1.0
+ASV_13	k__Viridiplantae; p__Streptophyta; c__NA; o__Asterales; f__Asteraceae; g__Cirsium; s__Cirsium_arvense	1.0
+ASV_14	k__Viridiplantae; p__Streptophyta; c__NA; o__Myrtales; f__Onagraceae; g__Chamaenerion; s__Chamaenerion_angustifolium	1.0
+ASV_15	k__Viridiplantae; p__Streptophyta; c__NA; o__Rosales; f__Rosaceae; g__Rosa	0.64
+ASV_17	k__Viridiplantae; p__Streptophyta; c__NA; o__Apiales; f__Araliaceae; g__Hedera; s__Hedera_helix	0.99
+ASV_20	k__Viridiplantae; p__Streptophyta; c__NA; o__Brassicales; f__Brassicaceae; g__Raphanus; s__Raphanus_sativus	0.71
+ASV_21	k__Viridiplantae; p__Streptophyta; c__NA; o__Caryophyllales; f__Chenopodiaceae; g__Atriplex; s__Atriplex_patula	0.77
+```
+
+*summary.log*
+
+```
+Number of reads: 10441
+Number of joined reads: 9379
+Number of ASVs (after dada2): 21
+Number of ASVs (after ITSx): 18
+```
+
+
+
+## To uninstall HONEYPI completely:
+
+```
+pip uninstall honeypi
+```

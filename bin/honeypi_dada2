@@ -1,0 +1,103 @@
+#!/usr/bin/env Rscript
+
+# require("argparse")
+
+# parser <- ArgumentParser()
+
+# parser$add_argument("-i", "--indir", action="store", default=FALSE, help="Input directory")
+# parser$add_argument("-o", "--outdir", action="store", default=FALSE, help="Output directory")
+# args <- parser$parse_args()
+
+# if (args$indir == FALSE){
+#   stop("Specify the input directory with trim_galore'd sequences.", call.=FALSE)
+#   quit(status=1)
+# }
+
+# if (args$outdir == FALSE){
+#   stop("Specify the output directory.", call.=FALSE)
+#   quit(status=1)
+# }
+
+# input_directory <- args$indir
+# output_directory <- args$outdir
+
+## This is manually done by the USER now.
+# if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+# BiocManager::install("dada2", ask = FALSE)
+
+library("dada2")
+
+args <- commandArgs(trailingOnly = TRUE)
+
+input_directory <- args[1]
+output_directory <- args[2]
+
+dir.create(file.path(output_directory), showWarnings = FALSE)
+
+fnFs <- sort(list.files(input_directory, pattern="_R1_001_val_1.fq.gz", full.names = TRUE))
+fnRs <- sort(list.files(input_directory, pattern="_R2_001_val_2.fq.gz", full.names = TRUE))
+
+sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
+
+
+# Filter
+tmp_directory <- paste0(input_directory, "_tmp")
+dir.create(tmp_directory, showWarnings = FALSE)
+
+filtFs <- file.path(tmp_directory, "filtered", paste0(sample.names, "_F_filt.fastq.gz"))
+filtRs <- file.path(tmp_directory, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
+
+#out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(250,200), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=TRUE)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=TRUE)
+
+
+# Throwing away samples with less than 10
+keep <- out[,"reads.out"] >= 10 # Or other cutoff
+filtFs <- filtFs[keep]
+filtRs <- filtRs[keep]
+sample.names <- sample.names[keep]
+
+errF <- learnErrors(filtFs, multithread=TRUE)
+errR <- learnErrors(filtRs, multithread=TRUE)
+
+#plotErrors(errF, nominalQ=TRUE)
+
+derepFs <- derepFastq(filtFs, verbose=TRUE)
+derepRs <- derepFastq(filtRs, verbose=TRUE)
+
+names(derepFs) <- sample.names
+names(derepRs) <- sample.names
+
+
+dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
+dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
+
+
+mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
+
+seqtab <- makeSequenceTable(mergers)
+
+seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
+
+
+# Convert to FASTA and table
+asv_seqs <- colnames(seqtab.nochim)
+asv_headers <- vector(dim(seqtab.nochim)[2], mode="character")
+
+for (i in 1:dim(seqtab.nochim)[2]) {
+  asv_headers[i] <- paste(">ASV", sprintf("%010.0f", i), sep="_")
+}
+
+# Create and write asvs
+asv_fasta <- c(rbind(asv_headers, asv_seqs))
+write(asv_fasta, file.path(output_directory, "ASVs.fasta"))
+
+
+# Count table:
+asv_tab <- t(seqtab.nochim)
+row.names(asv_tab) <- sub(">", "", asv_headers)
+write.table(asv_tab, file.path(output_directory, "ASVs_dada2_counts.txt"), sep="\t", quote=F)
+
+
+# delete tmp directory
+unlink(tmp_directory, recursive = T)

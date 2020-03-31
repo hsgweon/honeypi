@@ -1,0 +1,272 @@
+#!/usr/bin/env python
+
+from shutil import copyfile
+from honeypi.logger import *
+from honeypi.methods import *
+
+__version__    = 1.0
+
+__author__     = "Hyun Soon Gweon"
+__copyright__  = "Copyright 2018 HONEYPI - HONEY Pollen and Plant ITS pipeline."
+__credits__    = ["Hyun Soon Gweon"]
+__license__    = "GPL"
+__maintainer__ = "Hyun Soon Gweon"
+__email__      = "h.s.gweon@reading.ac.uk"
+
+if __name__ == '__main__':
+
+	parser = argparse.ArgumentParser(
+		description = "honeypi: pipeline for processing ITS sequences from Honey Pollens & Plants.")
+	parser.add_argument(
+		"-i",
+		action = "store",
+		dest = "dataDir",
+		metavar = "<DIR>",
+		help = "[REQUIRED] Directory with raw sequences in gzipped FASTQ",
+		required = True)
+	parser.add_argument(
+		"-o",
+		action = "store",
+		dest = "outputdir",
+		metavar = "<DIR>",
+		help = "[REQUIRED] Directory to output results",
+		default = "honeypi_output",
+		required = False)
+	parser.add_argument(
+		"-l",
+		action = "store",
+		dest = "listfile",
+		metavar = "<FILE>",
+		help = "Tap separated file with three columns for sample ids, forward-read filename and reverse-read filename. Only the files listed in this file will be processed.",
+		required = True)
+	parser.add_argument(
+		"--amplicontype",
+		action = "store",
+		dest = "amplicontype",
+		help = "ITS2",
+		required = False,
+		choices = ["ITS2"])
+	parser.add_argument(
+		"-v",
+		action = "store_true",
+		dest = "verbose",
+		help = "Verbose mode",
+		required = False)
+	options = parser.parse_args()
+
+
+	######################
+	# Create directories #
+	######################
+
+	if not os.path.exists(options.outputdir):
+		os.mkdir(options.outputdir)
+
+
+	#############
+	# Log files #
+	#############
+
+	logging_file = open(options.outputdir + "/output.log", "w")
+	summary_file = open(options.outputdir + "/summary.log", "w")
+
+
+	##########
+	# Start! #
+	##########
+
+	logger("HONEYPI started", logging_file, display = True)
+
+	# Check for the presence of rawdata directory
+	if not os.path.exists(options.dataDir):
+		logger("ERROR: Cannot find \"" + options.dataDir + "\" directory. Ensure you have the correct name of the input directory.", logging_file, display = True)
+		exit(1)
+
+
+	####################
+	# Sample list file #
+	####################
+
+	sampleids = []
+	fastqs_f = []
+	fastqs_r = []
+
+	# Load sampleids and filenames
+	if options.listfile:
+		logger("Checking listfile", logging_file, display = True)
+
+		try:
+			listfile = open(options.listfile, "r")
+		except IOError:
+			logger("ERROR: \"" + options.listfile + "\" not found.", logging_file, display = True)
+			exit(1)
+
+		for line in listfile:
+			if line.strip(" ").strip("\n") != "" and not line.startswith("#"):
+				line_split = line.rstrip().split("\t")
+
+				if line_split[0].find("_") != -1:
+					logger("ERROR: \"_\" is not allowed in the sample id. Revise the file.", logging_file, display = True)
+					exit(1)
+
+				sampleids.append(line_split[0])
+				fastqs_f.append(line_split[1])
+				fastqs_r.append(line_split[2])
+
+		listfile.close()
+		logger(BLUE + "... done" + ENDC, logging_file, display = True)
+
+	else:
+		logger("ERROR: Please specify a sample list file with \"-l\"", logging_file, display = True)
+		exit(1)
+
+	# Check if both files have the same number of sequences
+	if len(fastqs_f) != len(fastqs_r):
+		logger("ERROR: Different number of forward FASTQs and reverse FASTQs", logging_file, display = True)
+		exit(1)
+
+
+	#################
+	# Download data #
+	#################
+
+	logger("Downloading RDP trained database", logging_file, display = True)
+
+	url = "https://sourceforge.net/projects/honeypi/files/Gweon-ITS2-20200325-rdp-trained.tar.gz"
+	md5 = "e87e6f0a6bd201cd234dfc3c87cbafe2"
+	rdp_properties = "Gweon-ITS2-20180723-rdp-trained/Gweon-ITS2.properties"
+
+	downloadDB(
+		url = url,
+		md5 = md5,
+		output_dir = options.outputdir + "/db",
+		logging_file = logging_file,
+		summary_file = summary_file,
+		verbose = options.verbose)
+	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+
+
+	##############################
+	# Count sequences in rawdata #
+	##############################
+
+	logger("Counting sequences in rawdata", logging_file, display = True)
+	count_sequences(
+		input_dir = options.dataDir,
+		filenames_list = fastqs_f,
+		logging_file = logging_file,
+		summary_file = summary_file,
+		verbose = options.verbose)
+	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+
+
+	###############
+	# Trim_galore #
+	###############
+
+	logger("Quality filtering and removing adapters", logging_file, display = True)
+	run_trimgalore(
+		input_dir = options.dataDir,
+		output_dir = options.outputdir + "/trim_galore",
+		fastqs_f = fastqs_f,
+		fastqs_r = fastqs_r,
+		sampleids_list = sampleids,
+		logging_file = logging_file,
+		summary_file = summary_file,
+		verbose = options.verbose)
+	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+
+
+	#########
+	# dada2 #
+	#########
+
+	logger("Running dada2", logging_file, display = True)
+	run_dada2(
+		input_dir = options.outputdir + "/trim_galore",
+		output_dir = options.outputdir + "/dada2",
+		logging_file = logging_file,
+		summary_file = summary_file,
+		verbose = options.verbose)
+	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+
+
+	########
+	# ITSx #
+	########
+
+	logger("Running ITSx", logging_file, display = True)
+	run_ITSx(
+		input_dir = options.outputdir + "/dada2",
+		output_dir = options.outputdir + "/ITSx",
+		its_region = options.amplicontype,
+		logging_file = logging_file,
+		summary_file = summary_file,
+		verbose = options.verbose)
+	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+
+
+	#############################
+	### Consolidate sequences ###
+	#############################
+
+	logger("Adding sequences where ITSx didn't find any conserved regions", logging_file, display = True)
+	consolidateSequences(
+		output_dir = options.outputdir,
+		logging_file = logging_file,
+		summary_file = summary_file,
+		verbose = options.verbose)
+	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+	copyfile(options.outputdir + "/ITSx/ASVs.fasta", options.outputdir + "/ASVs.fasta")
+	
+
+	###################
+	# Assign taxonomy #
+	###################
+
+	logger("Running RDP Classifier", logging_file, display = True)
+	run_RDPClassifier(
+		input_fasta = options.outputdir + "/ASVs.fasta",
+		output_dir = options.outputdir + "/RDP",
+		rdpclassifier_properties = options.outputdir + "/db/" + rdp_properties,
+		logging_file = logging_file,
+		summary_file = summary_file,
+		verbose = options.verbose)
+	copyfile(options.outputdir + "/RDP/assigned_taxonomy.txt", options.outputdir + "/ASVs_taxonomy.txt")
+	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+
+
+	#################
+	# Sort out data #
+	#################
+
+	logger("Reflecting ITSx results to ASV table", logging_file, display = True)
+	filterASVtable(
+		input_table = options.outputdir + "/dada2/ASVs_dada2_counts.txt",
+		input_fasta = options.outputdir + "/ASVs.fasta",
+		output_dir = options.outputdir,
+		logging_file = logging_file,
+		summary_file = summary_file,
+		verbose = options.verbose)
+	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+
+
+	#######
+	# End #
+	#######
+
+	logger("Done - HONEYPI completed." + ENDC, logging_file, display = True)
+	logging_file.close()
+	summary_file.close()
+
+	exit(0)
+
+
+
+
+
+
+
+
+
+

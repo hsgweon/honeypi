@@ -195,7 +195,7 @@ if __name__ == '__main__':
 		summary_file = summary_file,
 		verbose = options.verbose)
 	logger(BLUE + "... done" + ENDC, logging_file, display = True)
-	copyfile(options.outputdir + "/ITSx/ASVs.fasta", options.outputdir + "/ASVs.fasta")
+	copyfile(options.outputdir + "/dada2/ASVs.fasta", options.outputdir + "/ASVs.fasta")
 
 
 	########

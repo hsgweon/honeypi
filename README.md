@@ -79,10 +79,8 @@ conda deactivate
 source activate honeypi_env
 pip uninstall honeypi
 conda deactivate
-
 conda env remove --name honeypi -y
 ```
-
 
 
 ## 4. Testing HONEYPI

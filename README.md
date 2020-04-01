@@ -76,7 +76,11 @@ conda deactivate
 ## 3. To uninstall HONEYPI completely:
 
 ```
+source activate honeypi_env
 pip uninstall honeypi
+conda deactivate
+
+conda env remove --name honeypi -y
 ```
 
 

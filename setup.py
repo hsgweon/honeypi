@@ -7,7 +7,7 @@ setup(
     name = "honeypi",
     version = __version__,
     packages = ["honeypi"],
-    scripts = ["bin/honeypi_createreadpairslist", "bin/honeypi", "bin/honeypi_dada2", "bin/honeypi_reformatAssignedTaxonomy", "bin/honeypi_filterASVtable"],
+    scripts = ["bin/honeypi_createreadpairslist", "bin/honeypi", "bin/honeypi_dada2", "bin/honeypi_reformatAssignedTaxonomy", "bin/honeypi_filterASVtable", "bin/honeypi_joinTwoResults.py"],
     description = "honeypi (HONEY Pollen and Plants ITS Pipeline)",
     long_description = "An open source tools for processing NGS amplicon data.",
     author = "Hyun Soon Gweon",

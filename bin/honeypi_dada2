@@ -96,7 +96,7 @@ write(asv_fasta, file.path(output_directory, "ASVs.fasta"))
 # Count table:
 asv_tab <- t(seqtab.nochim)
 row.names(asv_tab) <- sub(">", "", asv_headers)
-write.table(asv_tab, file.path(output_directory, "ASVs_dada2_counts.txt"), sep="\t", quote=F)
+write.table(asv_tab, file.path(output_directory, "ASVs_dada2_counts.txt"), sep="\t", col.names = NA, quote=F)
 
 
 # delete tmp directory

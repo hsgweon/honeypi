@@ -5,7 +5,7 @@
 # Header needs to have phylum -> species all separated by '_'
 
 import argparse
-parser = argparse.ArgumentParser("Reads and writes each entry as a single file.")
+parser = argparse.ArgumentParser("Joins two honeypi outputs.")
 parser.add_argument("-i1",
                     action = "store", 
                     dest = "input1", 
@@ -113,86 +113,3 @@ for key, value in seq2UID_updated.items():
 
 exit(0)
 
-
-
-table_joined = table_joined.rename(index = seq2newUID)
-
-taxonomy_joined = taxonomy_joined.rename(index = seq2newUID)
-print(taxonomy_joined)
-
-
-exit(0)
-#taxonomy_joined = pd.merge(taxonomy_1, taxonomy_2, how = "left")
-
-#.fillna(0)
-
-print(table_joined)
-print(table_joined2)
-
-
-print(taxonomy_1)
-
-print(taxonomy_joined)
-exit(0)
-
-taxonomy_joined = taxonomy_joined.rename(index = seq2UID_1)
-
-
-print(difference)
-
-# print(taxonomy_1)
-# print(taxonomy_2)
-# print(taxonomy_joined)
-exit(0)
-
-print(taxonomy_joined)
-
-
-print(newASVstartingIndex)
-
-
-
-exit(0)
-
-
-
-print(seq2UID_1.values())
-
-
-
-
-
-exit(0)
-
-print(UID2seq_1.values())
-print(UID2seq_2.values())
-
-
-print("")
-print(difference)
-exit(0)
-
-
-
-print(table_1)
-print(table_2)
-
-
-print(result)
-
-result1 = result.rename(index = seq2UID_1)
-
-print(result1)
-
-exit(0)
-
-
-#outfile = open(options.outfile, "w")
-
-
-
-
-
-
-infile.close()
-outfile.close()

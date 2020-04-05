@@ -5,7 +5,7 @@
 # Header needs to have phylum -> species all separated by '_'
 
 import argparse
-parser = argparse.ArgumentParser("Joins two honeypi outputs.")
+parser = argparse.ArgumentParser("Joins two honeypi outputs. Usage: honeypi_joinTwoResults.py -i1 ASVs_1.fasta,ASVs_counts_1.txt,ASVs_taxonomy_1.txt -i2 ASVs_2.fasta,ASVs_counts_2.txt,ASVs_taxonomy_2.txt")
 parser.add_argument("-i1",
                     action = "store", 
                     dest = "input1", 

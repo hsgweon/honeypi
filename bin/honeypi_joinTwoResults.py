@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/Users/soonio/miniconda3/envs/honeypi_env/bin/python
 
 ############################################################
 # Argument Options
@@ -40,11 +40,11 @@ for record in SeqIO.parse(infile_fasta_1, "fasta"):
     UID2seq_1[str(record.description)] = str(record.seq)
 seq2UID_1 = {v: k for k, v in UID2seq_1.items()}
 
-table_1 = pd.read_csv(infile_table_1, sep = "\t")
+table_1 = pd.read_csv(infile_table_1, sep = "\t", index_col=0)
 table_1 = table_1.rename(index = UID2seq_1)
 
-taxonomy_1 = pd.read_csv(infile_taxonomy_1, sep = "\t", names = ["id", "taxonomy", "score"])
-taxonomy_1.set_index("id", inplace = True)
+taxonomy_1 = pd.read_csv(infile_taxonomy_1, sep = "\t", index_col=0, names = ["taxonomy", "score"])
+# taxonomy_1.set_index("id", inplace = True)
 taxonomy_1 = taxonomy_1.rename(index = UID2seq_1)
 
 
@@ -58,11 +58,11 @@ for record in SeqIO.parse(infile_fasta_2, "fasta"):
     UID2seq_2[str(record.description)] = str(record.seq)
 seq2UID_2 = {v: k for k, v in UID2seq_2.items()}
 
-table_2 = pd.read_csv(infile_table_2, sep = "\t")
+table_2 = pd.read_csv(infile_table_2, sep = "\t", index_col=0)
 table_2 = table_2.rename(index = UID2seq_2)
 
-taxonomy_2 = pd.read_csv(infile_taxonomy_2, sep = "\t", names = ["id", "taxonomy", "score"])
-taxonomy_2.set_index("id", inplace = True)
+taxonomy_2 = pd.read_csv(infile_taxonomy_2, sep = "\t", index_col=0, names = ["taxonomy", "score"])
+# taxonomy_2.set_index("id", inplace = True)
 taxonomy_2 = taxonomy_2.rename(index = UID2seq_2)
 
 

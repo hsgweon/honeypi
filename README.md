@@ -19,6 +19,8 @@ In your home directory, copy and paste the following (line by line):
 cd ~
 conda create -n honeypi_env -y python=3.6 progressbar2 requests rdptools itsx vsearch trim-galore bbmap seqkit -c bioconda
 source activate honeypi_env
+conda install -c conda-forge biopython -y
+conda install -c anaconda pandas -y
 git clone https://github.com/hsgweon/honeypi.git
 pip install ./honeypi
 conda deactivate
@@ -60,10 +62,12 @@ source activate honeypi_env
 
 Then, go to a directory where with your rawdata directory is located, and create a readpairslist file. This file is needed to ensure all files and sample names are correctly labelled. It does some internal checks to make sure there are no human errors with samples names etc. 
 
+N.B. **rawdata** is your directory with paired-end sequences*
+
 ```
 cd honeypi/testdata
-honeypi_createreadpairslist -i rawdata_directory -o readpairslist.txt
-honeypi -i rawdata_directory -o honeypi_output --amplicontype ITS2 -l readpairslist.txt
+honeypi_createreadpairslist -i rawdata -o readpairslist.txt
+honeypi -i rawdata -o honeypi_output --amplicontype ITS2 -l readpairslist.txt
 ```
 
 Done... simple... isn't it? Ah, one more thing - after you finished with HONEYPI, don't forget to get out of the sandbox by:
@@ -214,3 +218,29 @@ Number of ASVs (after ITSx): 18
 ```
 
 
+## 4. Combining two sets of honeypi results
+
+You need two sets of results.
+
+First honeypi results:
+
+```
+ASVs_1.fasta
+ASVs_counts_1.txt
+ASVs_taxonomy_1.txt
+```
+
+Second honeypi results to add to the first:
+
+```
+ASVs_2.fasta
+ASVs_counts_2.txt
+ASVs_taxonomy_2.txt
+```
+
+Then execute the following commands - watch out for the order of files. 
+
+```
+source activate honeypi_env
+honeypi_joinTwoResults.py -i1 ASVs_1.fasta,ASVs_counts_1.txt,ASVs_taxonomy_1.txt -i2 ASVs_2.fasta,ASVs_counts_2.txt,ASVs_taxonomy_2.txt
+```

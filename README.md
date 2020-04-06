@@ -242,3 +242,12 @@ Then execute the following commands - watch out for the order of files.
 source activate honeypi_env
 honeypi_joinTwoResults.py -i1 ASVs_1.fasta,ASVs_counts_1.txt,ASVs_taxonomy_1.txt -i2 ASVs_2.fasta,ASVs_counts_2.txt,ASVs_taxonomy_2.txt
 ```
+
+This will produce three files:
+
+```
+ASVs_combined.fasta
+ASVs_counts_combined.txt
+ASVs_taxonomy_combined.txt
+```
+

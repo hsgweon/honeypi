@@ -218,7 +218,7 @@ Number of ASVs (after ITSx): 18
 
 ## 4. Combining two sets of honeypi results
 
-You need two sets of results.
+You need two sets of results from HONEYPI.
 
 First honeypi results:
 
@@ -228,7 +228,7 @@ ASVs_counts_1.txt
 ASVs_taxonomy_1.txt
 ```
 
-Second honeypi results to add to the first:
+Second honeypi results to be added to the first:
 
 ```
 ASVs_2.fasta
@@ -236,7 +236,7 @@ ASVs_counts_2.txt
 ASVs_taxonomy_2.txt
 ```
 
-Then execute the following commands - watch out for the order of files. 
+Once you have these files ready, then execute the following commands - watch out for the order of files (they need to be in the precise order)
 
 ```
 source activate honeypi_env

@@ -81,7 +81,7 @@ conda deactivate
 source activate honeypi_env
 pip uninstall honeypi
 conda deactivate
-conda env remove --name honeypi -y
+conda env remove --name honeypi_env -y
 ```
 
 

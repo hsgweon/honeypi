@@ -17,8 +17,10 @@ In your home directory, copy and paste the following (line by line):
 
 ```
 cd ~
-conda create -n honeypi_env -y python=3.6 progressbar2 requests rdptools itsx vsearch trim-galore bbmap seqkit pandas biopython -c bioconda -c conda-forge -c anaconda
+conda create -n honeypi_env -y python=3.6 progressbar2 requests rdptools itsx vsearch trim-galore bbmap seqkit -c bioconda
 source activate honeypi_env
+conda install -c conda-forge biopython -y
+conda install -c anaconda pandas -y
 git clone https://github.com/hsgweon/honeypi.git
 pip install ./honeypi
 conda deactivate

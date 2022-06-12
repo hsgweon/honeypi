@@ -285,13 +285,13 @@ def consolidateSequences(
 
     # filterbyname.sh in=honeypi_output/dada2/ASVs.fasta out=foo.fasta names=honeypi_output/ITSx/ITSxed.list include=t
 
-    cmd = "grep '>' " + output_dir + "/ITSx/ASVs_ITSxed.fasta | cut -c 2- > " + output_dir + "/ITSx/ITSxed.list"
+    cmd = "grep '>' " + output_dir + "/003_ITSx/ASVs_ITSxed.fasta | cut -c 2- > " + output_dir + "/003_ITSx/ITSxed.list"
     run_cmd(cmd, logging_file, verbose)
 
-    cmd = "filterbyname.sh in=" + output_dir + "/dada2/ASVs.fasta out=" + output_dir + "/ITSx/ASVs_ITSxed_NOT.fasta names=" + output_dir + "/ITSx/ITSxed.list include=f overwrite=t -Xmx500g"
+    cmd = "filterbyname.sh in=" + output_dir + "/002_dada2/ASVs.fasta out=" + output_dir + "/003_ITSx/ASVs_ITSxed_NOT.fasta names=" + output_dir + "/003_ITSx/ITSxed.list include=f overwrite=t -Xmx500g"
     run_cmd(cmd, logging_file, verbose)
 
-    cmd = "cat " + output_dir + "/ITSx/ASVs_ITSxed.fasta " + output_dir + "/ITSx/ASVs_ITSxed_NOT.fasta | seqkit sort --quiet > " + output_dir + "/ITSx/ASVs.fasta"
+    cmd = "cat " + output_dir + "/003_ITSx/ASVs_ITSxed.fasta " + output_dir + "/003_ITSx/ASVs_ITSxed_NOT.fasta | seqkit sort --quiet > " + output_dir + "/003_ITSx/ASVs.fasta"
     run_cmd(cmd, logging_file, verbose)
 
 
@@ -324,19 +324,30 @@ def run_RDPClassifier(
 def filterASVtable(
     input_table,
     input_fasta,
+    output_table,
+    logging_file,
+    summary_file,
+    verbose):
+    cmd = " ".join(["honeypi_filterASVtable",
+                    "--otu", input_table,
+                    "--fas", input_fasta,
+                    "--out", output_table])
+    run_cmd(cmd, logging_file, verbose)
+
+
+def mergeDuplicateASV(
+    input_table,
+    input_fasta,
+    input_taxonomy,
     output_dir,
     logging_file,
     summary_file,
     verbose):
 
-    cmd = " ".join(["honeypi_filterASVtable",
-                    "--otu", input_table,
-                    "--fas", input_fasta,
-                    "--out", output_dir + "/ASVs_counts.txt"])
+    inputline = input_fasta + "," + input_table + "," + input_taxonomy
+    cmd = " ".join(["honeypi_mergeDuplicateASV", "-i", inputline, "--outdir", output_dir])
     run_cmd(cmd, logging_file, verbose)
 
 
-
-
-
+#./honeypi_mergeDuplicateASV.py -i ASVs_2018.fasta,ASVs_counts_2018.txt,ASVs_taxonomy_2018.txt -o ASVs_2018_merged.fasta,ASVs_counts_2018_merged.txt,ASVs_taxonomy_2018_merged.txt
 

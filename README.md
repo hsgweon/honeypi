@@ -6,7 +6,7 @@
 
 ### An automated pipeline to process ITS2 sequences from honey and plants sequences from National Honey Monitoring Scheme ###
 
-** Current version: 1.0 (updated 2020-03-31) **
+** Current version: 1.1 (updated 2022-06-13) **
 
 
 ## A. Installation

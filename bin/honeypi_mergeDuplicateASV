@@ -1,0 +1,88 @@
+#!/home/xc917132/applications/miniconda3/envs/honeypi_env/bin/python
+
+############################################################
+# Argument Options
+# Header needs to have phylum -> species all separated by '_'
+
+import argparse
+parser = argparse.ArgumentParser("Merge duplicate ASVs. Usage: honeypi_mergeDuplicateASV.py -i ASVs_1.fasta,ASVs_counts_1.txt,ASVs_taxonomy_1.txt")
+parser.add_argument("-i",
+                    action = "store", 
+                    dest = "input", 
+                    metavar = "input",
+                    help = "[REQUIRED] Master files", 
+                    required = True)
+parser.add_argument("--outdir",
+                    action = "store",
+                    dest = "outdir",
+                    metavar = "outdir",
+                    help = "[REQUIRED] Output directory",
+                    required = True)
+options = parser.parse_args()
+
+############################################################
+
+from Bio import SeqIO, AlignIO
+import pandas as pd
+
+import os, shutil
+if os.path.exists(options.outdir):
+    shutil.rmtree(options.outdir)
+os.makedirs(options.outdir)
+
+
+infile_fasta = open(options.input.split(",")[0], "r")
+infile_table = open(options.input.split(",")[1], "r")
+infile_taxonomy = open(options.input.split(",")[2], "r")
+
+UID2seq = {}
+for record in SeqIO.parse(infile_fasta, "fasta"):
+    UID2seq[str(record.description)] = str(record.seq)
+
+seq2UID = {}
+seq2OneUID = {}
+for key, value in UID2seq.items():
+   if value not in seq2UID:
+       seq2UID[value] = [key]
+       seq2OneUID[value] = key
+   else:
+       seq2UID[value].append(key)
+
+duplicates = 0
+for key, value in seq2UID.items():
+    if len(value) > 1:
+        duplicates += 1
+print("Number of duplicate ASVs: " + str(duplicates))
+
+
+# ASV Table
+table = pd.read_csv(infile_table, sep = "\t", index_col = 0)
+table = table.reset_index(level = 0)
+table["index"] = table["index"].map(UID2seq) # Rename to the actual sequences
+table = table.groupby("index").sum()
+
+table = table.reset_index(level = 0)
+table["index"] = table["index"].map(seq2OneUID)
+table = table.set_index("index")
+
+table.to_csv(options.outdir + "/ASVs_counts.txt", index = True, sep = "\t", index_label = False)
+
+
+# Taxonomy
+taxonomy = pd.read_csv(infile_taxonomy, sep = "\t", index_col=0, names = ["taxonomy", "score"])
+taxonomy = taxonomy[taxonomy.index.isin(table.index)]
+taxonomy = taxonomy.reindex(table.index)
+
+taxonomy.to_csv(options.outdir + "/ASVs_taxonomy.txt", index = True, sep = "\t", header = False)
+
+
+# FASTA file
+outfile_fasta = open(options.outdir + "/ASVs.fasta", "w")
+for header in table.index:
+    outfile_fasta.write(">" + header + "\n")
+    outfile_fasta.write(UID2seq[header] + "\n")
+
+outfile_fasta.close()
+
+exit(0)
+

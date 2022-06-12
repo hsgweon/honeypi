@@ -71,6 +71,7 @@ if __name__ == '__main__':
 	summary_file = open(options.outputdir + "/summary.log", "w")
 
 
+
 	##########
 	# Start! #
 	##########
@@ -173,7 +174,7 @@ if __name__ == '__main__':
 	logger("Quality filtering and removing adapters", logging_file, display = True)
 	run_trimgalore(
 		input_dir = options.dataDir,
-		output_dir = options.outputdir + "/trim_galore",
+		output_dir = options.outputdir + "/001_trim_galore",
 		fastqs_f = fastqs_f,
 		fastqs_r = fastqs_r,
 		sampleids_list = sampleids,
@@ -189,13 +190,13 @@ if __name__ == '__main__':
 
 	logger("Running dada2", logging_file, display = True)
 	run_dada2(
-		input_dir = options.outputdir + "/trim_galore",
-		output_dir = options.outputdir + "/dada2",
+		input_dir = options.outputdir + "/001_trim_galore",
+		output_dir = options.outputdir + "/002_dada2",
 		logging_file = logging_file,
 		summary_file = summary_file,
 		verbose = options.verbose)
 	logger(BLUE + "... done" + ENDC, logging_file, display = True)
-	copyfile(options.outputdir + "/dada2/ASVs.fasta", options.outputdir + "/ASVs.fasta")
+#	copyfile(options.outputdir + "/dada2/ASVs.fasta", options.outputdir + "/ASVs.fasta")
 
 
 	########
@@ -204,8 +205,8 @@ if __name__ == '__main__':
 
 	logger("Running ITSx", logging_file, display = True)
 	run_ITSx(
-		input_dir = options.outputdir + "/dada2",
-		output_dir = options.outputdir + "/ITSx",
+		input_dir = options.outputdir + "/002_dada2",
+		output_dir = options.outputdir + "/003_ITSx",
 		its_region = options.amplicontype,
 		logging_file = logging_file,
 		summary_file = summary_file,
@@ -232,30 +233,50 @@ if __name__ == '__main__':
 
 	logger("Running RDP Classifier", logging_file, display = True)
 	run_RDPClassifier(
-		input_fasta = options.outputdir + "/ITSx/ASVs.fasta",
-		output_dir = options.outputdir + "/RDP",
+		input_fasta = options.outputdir + "/003_ITSx/ASVs.fasta",
+		output_dir = options.outputdir + "/004_RDP",
 		rdpclassifier_properties = options.outputdir + "/db/" + rdp_properties,
 		logging_file = logging_file,
 		summary_file = summary_file,
 		verbose = options.verbose)
-	copyfile(options.outputdir + "/RDP/assigned_taxonomy.txt", options.outputdir + "/ASVs_taxonomy.txt")
+#	copyfile(options.outputdir + "/RDP/assigned_taxonomy.txt", options.outputdir + "/ASVs_taxonomy.txt")
 	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+
 
 
 	#################
 	# Sort out data #
-	#################
+	################# This shouldn't make any difference given that all sequences (both ITSx'ed and not) should be included. But this step included for safety.
 
 	logger("Reflecting ITSx results to ASV table", logging_file, display = True)
 	filterASVtable(
-		input_table = options.outputdir + "/dada2/ASVs_dada2_counts.txt",
-		input_fasta = options.outputdir + "/ASVs.fasta",
-		output_dir = options.outputdir,
+		input_table = options.outputdir + "/002_dada2/ASVs_dada2_counts.txt",
+		input_fasta = options.outputdir + "/003_ITSx/ASVs.fasta",
+		output_table = options.outputdir + "/002_dada2/ASVs_dada2_counts_filtered.txt",
 		logging_file = logging_file,
 		summary_file = summary_file,
 		verbose = options.verbose)
 	logger(BLUE + "... done" + ENDC, logging_file, display = True)
 
+
+	########################
+	# Merge duplicate ASVs #
+	########################
+	
+	logger("Merging duplicate ASVs", logging_file, display = True)
+	mergeDuplicateASV(
+		input_table = options.outputdir + "/002_dada2/ASVs_dada2_counts_filtered.txt",
+		input_fasta = options.outputdir + "/003_ITSx/ASVs.fasta",
+		input_taxonomy = options.outputdir + "/004_RDP/assigned_taxonomy.txt",
+		output_dir = options.outputdir + "/005_final",
+		logging_file = logging_file,
+		summary_file = summary_file,
+		verbose = options.verbose)
+	copyfile(options.outputdir + "/005_final/ASVs_counts.txt", options.outputdir + "/ASVs_counts.txt")
+	copyfile(options.outputdir + "/005_final/ASVs_taxonomy.txt", options.outputdir + "/ASVs_taxonomy.txt")
+	copyfile(options.outputdir + "/005_final/ASVs.fasta", options.outputdir + "/ASVs.fasta")
+	logger(BLUE + "... done" + ENDC, logging_file, display = True)
+	
 
 	#######
 	# End #

@@ -37,6 +37,9 @@ dir.create(file.path(output_directory), showWarnings = FALSE)
 fnFs <- sort(list.files(input_directory, pattern="_R1_001_val_1.fq.gz", full.names = TRUE))
 fnRs <- sort(list.files(input_directory, pattern="_R2_001_val_2.fq.gz", full.names = TRUE))
 
+#fnFs <- sort(list.files(input_directory, pattern="_R1_001.fastq.gz", full.names = TRUE))
+#fnRs <- sort(list.files(input_directory, pattern="_R2_001.fastq.gz", full.names = TRUE))
+
 sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 
 
@@ -48,8 +51,7 @@ filtFs <- file.path(tmp_directory, "filtered", paste0(sample.names, "_F_filt.fas
 filtRs <- file.path(tmp_directory, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
 
 #out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(250,200), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=TRUE)
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=TRUE)
-
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(220,180), maxN=0, maxEE=c(2,2), rm.phix=TRUE, compress=TRUE, multithread=TRUE)
 
 # Throwing away samples with less than 10
 keep <- out[,"reads.out"] >= 10 # Or other cutoff
@@ -68,12 +70,10 @@ derepRs <- derepFastq(filtRs, verbose=TRUE)
 names(derepFs) <- sample.names
 names(derepRs) <- sample.names
 
-
 dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
 dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
 
-
-mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
+mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, maxMismatch=10, verbose=TRUE)
 
 seqtab <- makeSequenceTable(mergers)
 
@@ -92,12 +92,10 @@ for (i in 1:dim(seqtab.nochim)[2]) {
 asv_fasta <- c(rbind(asv_headers, asv_seqs))
 write(asv_fasta, file.path(output_directory, "ASVs.fasta"))
 
-
 # Count table:
 asv_tab <- t(seqtab.nochim)
 row.names(asv_tab) <- sub(">", "", asv_headers)
 write.table(asv_tab, file.path(output_directory, "ASVs_dada2_counts.txt"), sep="\t", col.names = NA, quote=F)
-
 
 # delete tmp directory
 unlink(tmp_directory, recursive = T)

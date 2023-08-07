@@ -153,8 +153,6 @@ def count_sequences(
         summary_file.write("Number of reads: " + str(numberofsequences) + "\n")
 
 
-
-# Join paired-end reads
 def run_trimgalore(
     input_dir,
     output_dir,
@@ -174,7 +172,7 @@ def run_trimgalore(
     for i in range(len(sampleids_list)):
 
         cmd = " ".join([
-            "trim_galore --phred33 --paired --illumina -q 25 --retain_unpaired --length 100 --max_n 1",
+            "trim_galore --phred33 --paired --illumina -q 20 --retain_unpaired --length 100 --max_n 1",
             input_dir + "/" + fastqs_f[i],
             input_dir + "/" + fastqs_r[i],
             "-o", output_dir

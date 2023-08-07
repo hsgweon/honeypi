@@ -4,7 +4,7 @@ from shutil import copyfile
 from honeypi.logger import *
 from honeypi.methods import *
 
-__version__    = 1.0
+__version__    = 1.2
 
 __author__     = "Hyun Soon Gweon"
 __copyright__  = "Copyright 2018 HONEYPI - HONEY Pollen and Plant ITS pipeline."

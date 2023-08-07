@@ -51,7 +51,7 @@ filtFs <- file.path(tmp_directory, "filtered", paste0(sample.names, "_F_filt.fas
 filtRs <- file.path(tmp_directory, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
 
 #out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(250,200), maxN=0, maxEE=c(2,2), truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=TRUE)
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(220,180), maxN=0, maxEE=c(2,2), rm.phix=TRUE, compress=TRUE, multithread=TRUE)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(230,190), maxN=0, maxEE=c(2,2), rm.phix=TRUE, compress=TRUE, multithread=TRUE)
 
 # Throwing away samples with less than 10
 keep <- out[,"reads.out"] >= 10 # Or other cutoff

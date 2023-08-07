@@ -13,17 +13,22 @@
 
 ### HONEYPI
 
+Install mamba if you don't already have it. 
+```
+conda install -c conda-forge mamba -y
+```
+
 In your home directory, copy and paste the following (line by line):
 
 ```
 cd ~
-conda create -n honeypi_env -y python=3.8 progressbar2 requests rdptools itsx vsearch trim-galore bbmap seqkit -c bioconda
-source activate honeypi_env
-conda install -c conda-forge biopython -y
-conda install -c anaconda pandas -y
+mamba create -n honeypi_env -y python=3.8 progressbar2 requests rdptools itsx vsearch trim-galore bbmap seqkit -c bioconda
+mamba activate honeypi_env
+mamba install -c conda-forge biopython -y
+mamba install -c anaconda pandas -y
 git clone https://github.com/hsgweon/honeypi.git
 pip install ./honeypi
-conda deactivate
+mamba deactivate
 ```
 
 ### R DADA2 package

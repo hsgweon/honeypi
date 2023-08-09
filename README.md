@@ -24,7 +24,8 @@ In your home directory, copy and paste the following (line by line):
 cd ~
 mamba create -n honeypi_env -y python=3.8 progressbar2 requests rdptools itsx vsearch trim-galore bbmap seqkit -c bioconda
 mamba activate honeypi_env
-mamba install -c conda-forge biopython -y
+mamba install -c conda-forge -c bioconda trim-galore -y
+mamba install -c conda-forge -c bioconda biopython -y
 mamba install -c anaconda pandas -y
 git clone https://github.com/hsgweon/honeypi.git
 pip install ./honeypi

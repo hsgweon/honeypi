@@ -13,7 +13,7 @@
 
 ### HONEYPI
 
-Install mamba if you don't already have it. 
+Install mamba if you don't already have it. You ought to follow the instruction at https://github.com/conda-forge/miniforge#mambaforge or if you have CONDA then:
 ```
 conda install -c conda-forge mamba -y
 ```
@@ -24,7 +24,6 @@ In your home directory, copy and paste the following (line by line):
 cd ~
 mamba create -n honeypi_env -y python=3.8 progressbar2 requests rdptools itsx vsearch trim-galore bbmap seqkit -c bioconda
 mamba activate honeypi_env
-mamba install -c conda-forge -c bioconda trim-galore -y
 mamba install -c conda-forge -c bioconda biopython -y
 mamba install -c anaconda pandas -y
 git clone https://github.com/hsgweon/honeypi.git
@@ -63,7 +62,7 @@ It is highly recommended that you test HONEYPI (see 4. Testing HONEYPI) before y
 Since we just created a sandbox "honeypi_env" in which all tools (except R and its packages) are installed, we need to be running honeypi and processing data within the environment:
 
 ```
-source activate honeypi_env
+mamba activate honeypi_env
 ```
 
 Then, go to a directory where with your rawdata directory is located, and create a readpairslist file. This file is needed to ensure all files and sample names are correctly labelled. It does some internal checks to make sure there are no human errors with samples names etc. 
@@ -79,17 +78,17 @@ honeypi -i rawdata -o honeypi_output --amplicontype ITS2 -l readpairslist.txt
 Done... simple... isn't it? Ah, one more thing - after you finished with HONEYPI, don't forget to get out of the sandbox by:
 
 ```
-conda deactivate
+mamba deactivate
 ```
 
 
 ## 3. To uninstall HONEYPI completely:
 
 ```
-source activate honeypi_env
+mamba activate honeypi_env
 pip uninstall honeypi
-conda deactivate
-conda env remove --name honeypi_env -y
+mamba deactivate
+mamba env remove --name honeypi_env -y
 ```
 
 
@@ -247,7 +246,7 @@ ASVs_taxonomy_2.txt
 Once you have these files ready, then execute the following commands - watch out for the order of files (they need to be in the precise order)
 
 ```
-source activate honeypi_env
+mamba activate honeypi_env
 honeypi_joinTwoResults.py -i1 ASVs_1.fasta,ASVs_counts_1.txt,ASVs_taxonomy_1.txt -i2 ASVs_2.fasta,ASVs_counts_2.txt,ASVs_taxonomy_2.txt
 ```
 
